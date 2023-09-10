@@ -36,14 +36,10 @@ import (
 	"barista.run/modules/meta/split"
 	"barista.run/modules/sysinfo"
 	"github.com/juli3nk/barista-module-brightness"
-	"github.com/juli3nk/barista-module-vpn"
+	"github.com/juli3nk/barista-module-security"
 	"github.com/juli3nk/barista-module-wlan"
 
 	colorful "github.com/lucasb-eyer/go-colorful"
-)
-
-var (
-	vpnDeviceName string = "protonvpn"
 )
 
 var spacer = pango.Text(" ").XXSmall()
@@ -80,14 +76,14 @@ func main() {
 	// Brightness
 	bn := brightness.New().Output(outputBrightness)
 
-	// VPN
-	vpn := vpn.New(vpnDeviceName).Output(outputVpn)
-
 	// Battery
 	battSummary, battDetail := split.New(battery.All().Output(outputBattery), 1)
 
 	// Wifi
 	wifiName, wifiDetails := split.New(wlan.Any().Output(outputWifi), 1)
+
+    // Security
+	secSummary, secDetails := split.New(security.All().Output(outputSecurity), 1)
 
 	// Volume
 
@@ -120,6 +116,11 @@ func main() {
 		Add(freeMem).
 		Detail(swapMem, temp)
 
+	mainModal.Mode("security").
+		SetOutput(makeIconOutput("mdi-lock")).
+		Summary(secSummary).
+		Detail(secDetails)
+
 	mainModal.Mode("network").
 		SetOutput(makeIconOutput("mdi-ethernet")).
 		Add(wifiName).
@@ -132,5 +133,5 @@ func main() {
 
 	var mm bar.Module
 	mm, mainModalController = mainModal.Build()
-	panic(barista.Run(mm, vpn, bn, localtime))
+	panic(barista.Run(mm, bn, localtime))
 }
